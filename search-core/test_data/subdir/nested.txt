@@ -1,0 +1,6 @@
+This file is in a subdirectory
+Testing recursive directory search
+hello from nested file
+rust works great here too
+안녕 from nested!
+

@@ -1,0 +1,5 @@
+Rust is a systems programming language
+It provides memory safety without garbage collection
+rust rust rust - triple match test test test
+I love Rust!
+

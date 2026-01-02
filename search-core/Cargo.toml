@@ -1,0 +1,16 @@
+[package]
+name = "search-core"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "search_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "search-demo"
+path = "src/main.rs"
+
+[dependencies]
+walkdir = "2"
+colored = "2"

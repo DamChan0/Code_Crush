@@ -1,0 +1,6 @@
+hello world
+this is a test file
+hello again, hello rust!
+learning rust programming
+안녕하세요 rust입니다
+
