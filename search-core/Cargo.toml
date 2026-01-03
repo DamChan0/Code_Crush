@@ -8,9 +8,10 @@ name = "search_core"
 path = "src/lib.rs"
 
 [[bin]]
-name = "search-demo"
+name = "search-core"
 path = "src/main.rs"
 
 [dependencies]
 walkdir = "2"
-colored = "2"
+colored = "3"
+clap = { version = "4", features = ["derive"] }

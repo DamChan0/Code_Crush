@@ -3,6 +3,15 @@ use std::path::PathBuf;
 
 use colored::Colorize;
 
+/// 검색 옵션을 담는 구조체
+#[derive(Debug, Clone, Default)]
+pub struct SearchOptions {
+    /// 대소문자 무시 여부
+    pub case_insensitive: bool,
+    /// 숨김 파일/디렉토리 포함 여부
+    pub include_hidden: bool,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MatchInfo {
     pub path: PathBuf,

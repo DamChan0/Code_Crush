@@ -2,17 +2,36 @@ use std::path::Path;
 
 use walkdir::WalkDir;
 
-use crate::{search, types::MatchInfo};
+use crate::{
+    search,
+    types::{MatchInfo, SearchOptions},
+};
 
-pub fn search_dir(root_dir: &Path, pattern: &str) -> std::io::Result<Vec<MatchInfo>> {
+/// 숨김 파일/디렉토리인지 확인
+fn is_hidden(entry: &walkdir::DirEntry) -> bool {
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| s.starts_with('.'))
+        .unwrap_or(false)
+}
+
+pub fn search_dir(
+    root_dir: &Path,
+    pattern: &str,
+    options: &SearchOptions,
+) -> std::io::Result<Vec<MatchInfo>> {
     let mut matches = Vec::new();
-
-    for file in WalkDir::new(root_dir)
-        .into_iter()
-        .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.file_type().is_file())
-    {
-        if let Ok(Some(file_matches)) = search::search_in_file(file.path(), pattern) {
+    let walker = WalkDir::new(root_dir).into_iter();
+    for entry in walker.filter_entry(|e| options.include_hidden || !is_hidden(e)) {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+        if !entry.file_type().is_file() {
+            continue;
+        }
+        if let Ok(Some(file_matches)) = search::search_in_file(entry.path(), pattern, options) {
             matches.extend(file_matches);
         }
     }

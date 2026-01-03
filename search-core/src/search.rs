@@ -5,39 +5,40 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
-    path::{Path, PathBuf},
+    path::Path,
 };
 
-use crate::{matcher, types::MatchInfo};
+use crate::{
+    matcher,
+    types::{MatchInfo, SearchOptions},
+};
 
-pub fn search_in_file(path: &Path, pattern: &str) -> std::io::Result<Option<Vec<MatchInfo>>> {
-    // open the file
+pub fn search_in_file(
+    path: &Path,
+    pattern: &str,
+    options: &SearchOptions,
+) -> std::io::Result<Option<Vec<MatchInfo>>> {
     let file = File::open(path)?;
-    // reader for read file as buffer
     let mut reader = BufReader::new(file);
-    //make results container
     let mut results: Vec<MatchInfo> = Vec::new();
     let mut current_line = String::new();
     let mut line_number: usize = 0;
     let mut byte_offset: usize = 0;
-
     loop {
-        // read a line
         let bytes_read = reader.read_line(&mut current_line)?;
         if bytes_read == 0 {
             break;
         }
-        line_number += 1; // line number is 1-based
-
-        if let Some(positions) = matcher::find_matches(&current_line, pattern) {
+        line_number += 1;
+        if let Some(positions) =
+            matcher::find_matches(&current_line, pattern, options.case_insensitive)
+        {
             for pos in positions {
-                let column = current_line[..pos].chars().count() + 1; // column is 1-based
-
+                let column = current_line[..pos].chars().count() + 1;
                 let line_text = current_line
-                    .trim_end_matches('\n') // trim the newline character
-                    .trim_end_matches('\r') // trim the carriage return character
+                    .trim_end_matches('\n')
+                    .trim_end_matches('\r')
                     .to_string();
-
                 results.push(MatchInfo {
                     path: path.to_path_buf(),
                     line_number,
@@ -48,9 +49,7 @@ pub fn search_in_file(path: &Path, pattern: &str) -> std::io::Result<Option<Vec<
                 });
             }
         }
-
         byte_offset += bytes_read;
-
         current_line.clear();
     }
     Ok(Some(results))
