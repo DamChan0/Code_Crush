@@ -1,3 +1,4 @@
+mod command;
 mod matcher;
 mod search;
 mod search_dir;
