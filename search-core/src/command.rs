@@ -4,7 +4,6 @@ pub enum Command {
     Quit,
     Help,
     Invalid(String),
-    Unknown,
 }
 
 impl Command {

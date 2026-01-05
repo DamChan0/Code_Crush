@@ -16,6 +16,12 @@ fn is_hidden(entry: &walkdir::DirEntry) -> bool {
         .unwrap_or(false)
 }
 
+/// 빌드 산출물/버전 관리 폴더인지 확인
+fn should_skip_dir(entry: &walkdir::DirEntry) -> bool {
+    let name = entry.file_name().to_str().unwrap_or("");
+    matches!(name, "target" | ".git" | "node_modules" | ".cargo")
+}
+
 pub fn search_dir(
     root_dir: &Path,
     pattern: &str,
@@ -23,7 +29,12 @@ pub fn search_dir(
 ) -> std::io::Result<Vec<MatchInfo>> {
     let mut matches = Vec::new();
     let walker = WalkDir::new(root_dir).into_iter();
-    for entry in walker.filter_entry(|e| options.include_hidden || !is_hidden(e)) {
+    for entry in walker.filter_entry(|e| {
+        if should_skip_dir(e) {
+            return false;
+        }
+        options.include_hidden || !is_hidden(e)
+    }) {
         let entry = match entry {
             Ok(e) => e,
             Err(_) => continue,
