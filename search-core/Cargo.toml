@@ -3,9 +3,20 @@ name = "search-core"
 version = "0.1.0"
 edition = "2024"
 
+
+# 내 코드는 디버깅하기 쉽게 최적화 끄기 (기본값)
+[profile.dev]
+opt-level = 0
+debug = true
+
+# 외부 라이브러리(의존성)는 최고 속도로 최적화
+[profile.dev.package."*"]
+opt-level = 3
+
 [lib]
 name = "search_core"
 path = "src/lib.rs"
+
 
 [[bin]]
 name = "search-core"
@@ -15,3 +26,14 @@ path = "src/main.rs"
 walkdir = "2"
 colored = "3"
 clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }   # 비동기 런타임 (Web/Remote 확장용)
+futures = "0.3"                                   # Stream trait 및 StreamExt
+tokio-stream = "0.1"                             # 스트림 유틸리티
+ignore = "0.4"                                   # ripgrep에서 쓰는 초고속 병렬 파일 순회기
+memmap2 = "0.9"                                  # 파일을 메모리에 매핑 (Zero-copy I/O)
+memchr = "2.7"                                   # SIMD 가속 문자열 검색
+anyhow = "1.0"                                   # 에러 처리 간소화
+num_cpus = "1.0"                                 # CPU 코어 수 확인
+bytecount = "0.6.9"
+
+
