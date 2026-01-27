@@ -35,7 +35,7 @@ memchr = "2.7"                                   # SIMD 가속 문자열 검색
 anyhow = "1.0"                                   # 에러 처리 간소화
 num_cpus = "1.0"                                 # CPU 코어 수 확인
 bytecount = "0.6.9"
+regex = "1"
 ratatui = "0.27"                                 # TUI 프레임워크
 crossterm = "0.28"                               # 터미널 제어
-
 

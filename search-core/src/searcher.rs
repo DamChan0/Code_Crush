@@ -12,8 +12,8 @@ use crate::types::{MatchInfo, SearchOptions};
 /// this function does not create or allocate any strings
 pub fn searcher(
     path: &Path,
-    pattern: Arc<String>,
-    _options: &SearchOptions,
+    pattern: Arc<str>,
+    options: &SearchOptions,
 ) -> Result<Vec<MatchInfo>> {
     let file = File::open(path)?;
 
@@ -28,10 +28,10 @@ pub fn searcher(
     let pattern_bytes = pattern.as_bytes();
 
     // find all occurrences of pattern (byte offset)
-    let match_indices = matcher::find_matches(&mmap, pattern_bytes);
+    let match_indices = matcher::find_matches(&mmap, pattern_bytes, options.case_insensitive());
     let mut results = Vec::with_capacity(match_indices.len());
 
-    for pos in match_indices {
+    for (pos, match_len) in match_indices {
         // calculate line number, column, line range based on position
         let (line_number, column, line_range) = matcher::extract_line_context(&mmap, pos);
 
@@ -41,6 +41,7 @@ pub fn searcher(
             line_number,
             column,
             byte_offset: pos,
+            match_len,
             line_range,
             matched_text: Arc::clone(&pattern),
         });

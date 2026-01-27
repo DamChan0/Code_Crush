@@ -20,7 +20,7 @@ pub fn search_stream(
 
     let root = root.to_path_buf();
     // using Arc for shared memory with other threads
-    let pattern = Arc::new(pattern.to_string());
+    let pattern: Arc<str> = Arc::from(pattern);
     let options = Arc::new(options);
 
     tokio::task::spawn_blocking(move || {

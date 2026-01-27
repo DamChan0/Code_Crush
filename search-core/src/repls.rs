@@ -22,11 +22,8 @@ use crate::{search_dir::search_stream, types::SearchOptions};
 /// main.rs에서 이 함수를 호출할 때도 .await를 붙여야 합니다.
 pub async fn run_repl() {
     println!("Code_Crush v0.1.0");
-    println!("사용법: <pattern> [path]");
+    println!("사용법: <pattern> [path] [-i|--ignore-case]");
     println!("명령어: help, quit\n");
-
-    // 기본 검색 옵션 생성 (대소문자 구분 X, 숨김 파일 X 등)
-    let options = SearchOptions::default();
 
     loop {
         // 1. 프롬프트 출력
@@ -48,7 +45,11 @@ pub async fn run_repl() {
 
         // 3. 명령어 파싱 및 실행
         match Command::parse(&input) {
-            Ok(Command::Search { pattern, path }) => {
+            Ok(Command::Search {
+                pattern,
+                path,
+                case_insensitive,
+            }) => {
                 // 경로 결정: 입력이 없으면 현재 디렉토리(".")
                 let rootpath = if path == "." {
                     std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
@@ -57,6 +58,8 @@ pub async fn run_repl() {
                 };
 
                 println!("🔍 검색 시작: '{}' in {:?}", pattern, rootpath);
+
+                let options = SearchOptions::default().with_case_insensitive(case_insensitive);
 
                 // [학습 6] 스트림 생성
                 // 이 함수는 호출 즉시 리턴되며, 백그라운드 스레드들이 돌기 시작합니다.
@@ -72,7 +75,10 @@ pub async fn run_repl() {
                         Ok(info) => {
                             count += 1;
                             // MatchInfo의 Display 트레이트 구현 덕분에 바로 출력 가능
-                            println!("{}", info);
+                            match info.highlighted_line() {
+                                Ok(line) => println!("{}  {}", info.make_pattern_link(), line),
+                                Err(_) => println!("{}", info),
+                            }
                         }
                         Err(e) => {
                             eprintln!("Error: {}", e);
@@ -83,8 +89,8 @@ pub async fn run_repl() {
             }
             Ok(Command::Help) => {
                 println!("사용법:");
-                println!("  <pattern>        현재 디렉토리에서 검색");
-                println!("  <pattern> <path> 지정 경로에서 검색");
+                println!("  <pattern> [-i]          현재 디렉토리에서 검색");
+                println!("  <pattern> <path> [-i]   지정 경로에서 검색");
                 println!("  help, h          도움말");
                 println!("  quit, q, exit    종료\n");
             }
